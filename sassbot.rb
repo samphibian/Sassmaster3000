@@ -4,6 +4,7 @@ require 'json'
 file = File.read('config.json')
 info_hash = JSON.parse(file)
 userArray = []
+userHashArray = []
 
 bot = Discordrb::Commands::CommandBot.new token: info_hash['bot_token'], prefix: '/'
 
@@ -12,16 +13,20 @@ bot.message(with_text: 'ping') do |event|
   event.respond 'Pong!'
 end
 
-bot.command(:sass) do |event, user|  
-  puts event
-  # user = event.message.content.split(' ')[1]
-  puts user
-  userArray.push(user)
+bot.command(:sass) do |event, mention|
+  user = bot.parse_mention(mention)
+
+  unless userArray.include? user
+    userArray.push(user)
+    userHashArray.push(Hash(user => 5))
+  end
+
   return nil
 end
 
 bot.message(from: userArray) do |event|
-  event.respond 'plagiarize'
+  puts event.author
+  event.respond "plagiarize @#{event.author.name}"
 end
 
 bot.run
